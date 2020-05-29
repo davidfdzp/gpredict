@@ -49,9 +49,13 @@ To build and install gpredict from source, first unpack the source package:
 
 Then change to the gpredict-x.y.z directory and build gpredict:
 
+If you are building directly from the git repository, you have to run
+./autogen.sh instead of of configure. You can pass the same options to the
+autogen.sh script as you would to the configure script.
+
   ./configure
   make
-  make install
+  sudo make install
 
 The last step usually requires you to become root, otherwise you may not have
 the required permissions to install gpredict. If you can not or do not want to
@@ -61,10 +65,6 @@ adding --prefix=somedir to the ./configure step. For example
   ./configure --prefix=/home/user/predict
   
 will configure the build to install the files into /home/user/gpredict folder.
-
-If you are building directly from the git repository, you have to run
-./autogen.sh instead of of configure. You can pass the same options to the
-autogen.sh script as you would to the configure script.
 
 If you want to know more about installation options refer to the INSTALL file
 (not for beginners).
