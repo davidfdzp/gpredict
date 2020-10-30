@@ -795,6 +795,7 @@ static gboolean rot_ctrl_timeout_cb(gpointer data)
         {
             gtk_rot_knob_set_value(GTK_ROT_KNOB(ctrl->AzSet), setaz);
             gtk_rot_knob_set_value(GTK_ROT_KNOB(ctrl->ElSet), setel);
+			g_print ("Update: Az: %.2f, Elev: %.2f\n", setaz, setel);
         }
 
     }
@@ -935,6 +936,7 @@ static gboolean rot_ctrl_timeout_cb(gpointer data)
             /* this is the newly computed value which should be ahead of the current position */
             gtk_rot_knob_set_value(GTK_ROT_KNOB(ctrl->AzSet), setaz);
             gtk_rot_knob_set_value(GTK_ROT_KNOB(ctrl->ElSet), setel);
+			g_print ("Update rotator: Az: %.2f, Elev: %.2f\n", setaz, setel);
             if (g_mutex_trylock(&ctrl->client.mutex))
             {
                 ctrl->client.azi_out = setaz;
