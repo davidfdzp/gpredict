@@ -134,6 +134,8 @@ static void update_autotrack(GtkSatModule * module)
 static void gtk_sat_module_destroy(GtkWidget * widget)
 {
     GtkSatModule   *module = GTK_SAT_MODULE(widget);
+    GtkWidget      *view;
+    guint           i;
 
     /*save the configuration */
     mod_cfg_save(module->name, module->cfgdata);
@@ -168,6 +170,14 @@ static void gtk_sat_module_destroy(GtkWidget * widget)
         gtk_widget_destroy(module->skgwin);
     }
 
+    /* destroy views */
+    for (i = 0; i < module->nviews; i++)
+    {
+        view = GTK_WIDGET(g_slist_nth_data(module->views, i));
+        gtk_widget_destroy(view);
+    }
+    module->nviews = 0;
+
     /* clean up QTH */
     if (module->qth)
     {
@@ -188,14 +198,15 @@ static void gtk_sat_module_destroy(GtkWidget * widget)
         module->grid = NULL;
     }
 
-    /* FIXME: free module->views? */
-
     (*GTK_WIDGET_CLASS(parent_class)->destroy) (widget);
 }
 
-static void gtk_sat_module_class_init(GtkSatModuleClass * class)
+static void gtk_sat_module_class_init(GtkSatModuleClass * class,
+				      gpointer class_data)
 {
     GtkWidgetClass    *widget_class;
+
+    (void)class_data;
 
     widget_class = (GtkWidgetClass *) class;
     widget_class->destroy = gtk_sat_module_destroy;
@@ -203,8 +214,11 @@ static void gtk_sat_module_class_init(GtkSatModuleClass * class)
 }
 
 /** Initialise GtkSatModule widget */
-static void gtk_sat_module_init(GtkSatModule * module)
+static void gtk_sat_module_init(GtkSatModule * module,
+				gpointer g_class)
 {
+    (void)g_class;
+
     /* initialise data structures */
     module->win = NULL;
 
@@ -1256,7 +1270,7 @@ void gtk_sat_module_config_cb(GtkWidget * button, gpointer data)
     }
     else
     {
-        module->timerid = -1;
+        module->timerid = 0;
         retcode = mod_cfg_edit(name, module->cfgdata, toplevel);
         if (retcode == MOD_CFG_OK)
         {
@@ -1369,16 +1383,6 @@ void gtk_sat_module_config_cb(GtkWidget * button, gpointer data)
     g_free(name);
 }
 
-static gboolean empty(gpointer key, gpointer val, gpointer data)
-{
-    (void)key;
-    (void)val;
-    (void)data;
-
-    /* TRUE => sat removed from hash table */
-    return TRUE;
-}
-
 /** Reload satellites in view */
 static void reload_sats_in_child(GtkWidget * widget, GtkSatModule * module)
 {
@@ -1439,7 +1443,7 @@ void gtk_sat_module_reload_sats(GtkSatModule * module)
                 __func__, module->name);
 
     /* remove each element from the hash table, but keep the hash table */
-    g_hash_table_foreach_remove(module->satellites, empty, NULL);
+    g_hash_table_remove_all(module->satellites);
 
     /* reset event counter so that next AOS/LOS gets re-calculated */
     module->event_count = 0;

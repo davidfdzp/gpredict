@@ -83,17 +83,23 @@ static void gtk_polar_view_destroy(GtkWidget * widget)
     (*GTK_WIDGET_CLASS(parent_class)->destroy) (widget);
 }
 
-static void gtk_polar_view_class_init(GtkPolarViewClass * class)
+static void gtk_polar_view_class_init(GtkPolarViewClass * class,
+				      gpointer class_data)
 {
     GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
+
+    (void)class_data;
 
     widget_class->destroy = gtk_polar_view_destroy;
 
     parent_class = g_type_class_peek_parent(class);
 }
 
-static void gtk_polar_view_init(GtkPolarView * polview)
+static void gtk_polar_view_init(GtkPolarView * polview,
+				gpointer g_class)
 {
+    (void)g_class;
+
     polview->sats = NULL;
     polview->qth = NULL;
     polview->obj = NULL;
@@ -1558,7 +1564,7 @@ void gtk_polar_view_create_track(GtkPolarView * pv, sat_obj_t * obj,
         points->coords[2 * i] = (double)x;
         points->coords[2 * i + 1] = (double)y;
 
-        if (!(i % tres))
+        if (tres != 0 && !(i % tres))
         {
             /* create a time tick */
             if (ttidx < TRACK_TICK_NUM)
